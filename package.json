@@ -1,0 +1,23 @@
+{
+  "name": "nodejs-lottery",
+  "version": "1.0.0",
+  "description": "university work on nodejs for the distributed systems class",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/delitonjr/trab-sistemas-distribuidos.git"
+  },
+  "keywords": [
+    "lottery",
+    "nodejs"
+  ],
+  "author": "deliton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/delitonjr/trab-sistemas-distribuidos/issues"
+  },
+  "homepage": "https://github.com/delitonjr/trab-sistemas-distribuidos#readme"
+}

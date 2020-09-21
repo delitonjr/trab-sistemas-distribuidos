@@ -10,13 +10,31 @@ var betsArray = [];
 var receiptArray = [];
 var correctBetsCount = 0;
 
+const logo = `
+███    ██  ██████  ██████  ███████      ██ ███████          
+████   ██ ██    ██ ██   ██ ██           ██ ██               
+██ ██  ██ ██    ██ ██   ██ █████        ██ ███████          
+██  ██ ██ ██    ██ ██   ██ ██      ██   ██      ██          
+██   ████  ██████  ██████  ███████  █████  ███████          
+                                                            
+                                                            
+██       ██████  ████████ ████████ ███████ ██████  ██    ██ 
+██      ██    ██    ██       ██    ██      ██   ██  ██  ██  
+██      ██    ██    ██       ██    █████   ██████    ████   
+██      ██    ██    ██       ██    ██      ██   ██    ██    
+███████  ██████     ██       ██    ███████ ██   ██    ██  
+`
+
+const separator = `██████████████████████████████████████████████████████████████████████████████████████████\n `
+
 const readNumberFromProcess = (prompt = 'Aposta numero 1: ') => {
     scanner.question(prompt, (answer) => {
-        if (answer < 1 || answer > 60) {
-            console.log("Valor invalido. Por favor insira valores de 1 a 60")
+        if (answer < 1 || answer > 60 || haveDuplicates(formatOneDigitNumber(answer)) ) {
+            console.log("Número repetido ou invalido")
             readNumberFromProcess(`Aposta numero ${betsArray.length+1}:`);
         } else {
-            betsArray.push(answer);
+            let formattedAnswer = formatOneDigitNumber(answer)
+            betsArray.push(formattedAnswer);
             if (betsArray.length > 5) {
                 scanner.close();
                 processResults();
@@ -27,32 +45,48 @@ const readNumberFromProcess = (prompt = 'Aposta numero 1: ') => {
     });
 }
 
-const processResults = () => {
+function haveDuplicates(entry){
+    const duplicates = betsArray.filter(val => betsArray.includes(entry))
+    if (duplicates.length > 0) {
+        return true
+    }
+    else {
+        return false
+    }
+}
+
+const processResults =() => {
     fs.readFile('games-list.txt', 'utf-8', (err, bets) => {
         if (err) {
-            console.log('Arquivo de apostas nao encontrado!');
+            console.log('Arquivo nao encontrado');
         } else {
-            receiptArray.push('Numeros sorteados: ' + betsArray)
+            receiptArray.push(separator)
+            receiptArray.push(logo)
+            receiptArray.push(separator)
+            receiptArray.push("Lottery Ticket Results")
+            receiptArray.push('Números sorteados: ' + betsArray.sort())
+            receiptArray.push(separator)
             receiptArray.push('Apostas:');
             let lines = bets.split(/\r?\n/);
             lines.forEach((line) => {
-                let dozens = line.split(',');
-                let count = 0;
+                if (line !== "") {
+                    let fileNumbers = line.split(',');
+                    var correctBet = []
 
-                for (let i=0;i<dozens.length;i++) {
-                    if (dozens[i] === betsArray[i]) count++;
-                };
-                if (count === 6) correctBetsCount++;
+                    correctBet = fileNumbers.filter(val => betsArray.includes(val))
+                    if (correctBet.length === 6) correctBetsCount++;
 
-                receiptArray.push(dozens + ' Acertos: ' + count);
+                    receiptArray.push(fileNumbers + ' Acertos: ' + correctBet.length);
+                }
             });
+            receiptArray.push(separator)
             if (correctBetsCount > 0) {
-                receiptArray.push('Resultado: Ganhador')
+                receiptArray.push('Resultado: GANHADOR')
             }
             else {
-                receiptArray.push('Resultado: Não foi dessa vez')
+                receiptArray.push("Resultado: Não foi dessa vez")
             }
-
+            receiptArray.push(separator)
             saveResults();
         }
     })
@@ -86,15 +120,15 @@ const generateDateFileName = () => {
     let day = ("0" + currentDate.getDate()).slice(-2);
     let month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
     let year = currentDate.getFullYear();
-    let hours = checkMinHour(currentDate.getHours());
-    let minutes = checkMinHour(currentDate.getMinutes());
+    let hours = formatOneDigitNumber(currentDate.getHours());
+    let minutes = formatOneDigitNumber(currentDate.getMinutes());
     
     currentDate = year + month + day + hours + minutes;
 
     return currentDate + '.txt';
 }
 
-const checkMinHour = (value) => {
+const formatOneDigitNumber = (value) => {
     if ((value + '').length === 1) {
         value = '0' + value;
     }
